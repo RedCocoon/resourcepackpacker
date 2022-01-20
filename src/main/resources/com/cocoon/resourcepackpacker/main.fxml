@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TreeTableColumn?>
+<?import javafx.scene.control.TreeTableView?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane fx:id="rootPane" pickOnBounds="false" prefHeight="718.0" prefWidth="1123.0" stylesheets="@css/master-style.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+               <top>
+                  <MenuBar prefHeight="27.0" styleClass="menu" BorderPane.alignment="CENTER">
+                    <menus>
+                      <Menu mnemonicParsing="false" text="File">
+                        <items>
+                              <MenuItem mnemonicParsing="false" text="New" />
+                              <MenuItem mnemonicParsing="false" onAction="#onSelectProjectItem" text="Load" />
+                              <MenuItem mnemonicParsing="false" text="Export" />
+                  <MenuItem fx:id="menuBarSelectRefrenceItem" mnemonicParsing="false" onAction="#onSelectReferenceItem" text="Select Reference Jar" />
+                          <MenuItem mnemonicParsing="false" text="Close" />
+                        </items>
+                      </Menu>
+                      <Menu mnemonicParsing="false" text="Edit">
+                        <items>
+                          <MenuItem mnemonicParsing="false" text="Delete" />
+                        </items>
+                      </Menu>
+                      <Menu mnemonicParsing="false" text="Help">
+                        <items>
+                          <MenuItem mnemonicParsing="false" text="About" />
+                        </items>
+                      </Menu>
+                    </menus>
+                     <effect>
+                        <DropShadow />
+                     </effect>
+                  </MenuBar>
+               </top>
+   <bottom>
+            <Label fx:id="versioningLabel" text="Version pre-alpha-1.0" BorderPane.alignment="CENTER" />
+   </bottom>
+   <center>
+      <AnchorPane BorderPane.alignment="CENTER">
+         <children>
+                  <HBox fx:id="content_hbox" spacing="20.0" styleClass="hbox">
+                     <children>
+                              <TreeTableView fx:id="treeTableView" disable="true" prefHeight="622.0">
+                                <columns>
+                                  <TreeTableColumn fx:id="resourceFileTree" editable="false" prefWidth="592.0" resizable="false" styleClass="tree-table-column" text="Resource File" />
+                                  <TreeTableColumn fx:id="statusTree" editable="false" prefWidth="169.0" resizable="false" styleClass="tree-table-column" text="Status" />
+                                </columns>
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                     <effect>
+                        <DropShadow height="5.0" offsetX="2.0" offsetY="2.0" radius="2.0" width="5.0" />
+                     </effect>
+                     <styleClass>
+                        <String fx:value="menu" />
+                        <String fx:value="tree-table-view" />
+                     </styleClass>
+                     <columnResizePolicy>
+                        <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                     </columnResizePolicy>
+                              </TreeTableView>
+                  <VBox prefHeight="200.0" prefWidth="100.0" spacing="20.0">
+                     <children>
+                              <ImageView fx:id="imagePreviewer" fitHeight="240.0" fitWidth="240.0" pickOnBounds="true" preserveRatio="true" smooth="false">
+                                 <image>
+                                    <Image url="@assets/no_image.png" />
+                                 </image>
+                           <effect>
+                              <DropShadow height="5.0" offsetX="2.0" offsetY="2.0" radius="2.0" width="5.0" />
+                           </effect>
+                              </ImageView>
+                        <Label fx:id="imagePreviewerLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="38.0" prefWidth="240.0" text="Error.png" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" />
+                        <Button mnemonicParsing="false" prefWidth="800.0" text="Import into Project">
+                           <effect>
+                              <DropShadow height="5.0" offsetX="2.0" offsetY="2.0" radius="2.0" width="5.0" />
+                           </effect>
+                        </Button>
+                        <Button layoutX="10.0" layoutY="270.0" mnemonicParsing="false" prefWidth="800.0" text="Import &amp; Open">
+                           <effect>
+                              <DropShadow height="5.0" offsetX="2.0" offsetY="2.0" radius="2.0" width="5.0" />
+                           </effect>
+                        </Button>
+                        <Button disable="true" layoutX="10.0" layoutY="328.0" mnemonicParsing="false" prefWidth="800.0" text="Create .mcmeta">
+                           <effect>
+                              <DropShadow height="5.0" offsetX="2.0" offsetY="2.0" radius="2.0" width="5.0" />
+                           </effect>
+                        </Button>
+                     </children>
+                  </VBox>
+                     </children>
+                     <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                     </padding>
+                  </HBox>
+         </children>
+      </AnchorPane>
+   </center>
+            </BorderPane>

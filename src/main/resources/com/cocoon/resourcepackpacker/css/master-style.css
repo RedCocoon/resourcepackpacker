@@ -1,0 +1,67 @@
+.root{
+    -primary-color: #261c17;
+    -highlight-color: #3d2f27;
+    -background-color: #2F231D;
+    -default-label-color: #3f6d73;
+    -completed-label-color: #317839;
+    -imported-label-color: #804a38;
+    -fx-font-size: 16pt;
+    -fx-font-family: "Times New Roman";
+    -fx-base: -primary-color;
+    -fx-background: -background-color;
+}
+
+.menu{
+    -fx-background-color: -primary-color;
+    -fx-font-size: 12pt;
+}
+
+.button{
+    -fx-background-color: -highlight-color;
+}
+
+/*
+.tree-table-column{
+    -fx-background-color: -highlight-color;
+}
+*/
+
+.tree-table-view .column-header-background{
+    -fx-background-color: -highlight-color;
+    -fx-background-radius: 7px 7px 0px 0px;
+    -fx-background-insets: 0 11px 0 0;
+    -fx-padding: 0 0 5px 0;
+}
+
+.tree-table-view .column-header {
+    -fx-background-color: transparent;
+}
+
+.tree-table-column {
+    -fx-text-fill: white;
+}
+
+.tree-table-column: odd{
+    -fx-background-color: -highlight-color;
+    -fx-background-insets: 0, 0 0 1 0;
+    -fx-padding: 0.0em;
+}
+.tree-table-column: even{
+    -fx-background-color: -background-color;
+    -fx-background-insets: 0, 0 0 1 0;
+    -fx-padding: 0.0em;
+}
+
+.tree-table-column: hover{
+    -fx-background-color: #93f9b911;
+    -fx-text-fill: yellow;
+}
+
+.tree-table-view .virtual-flow .scroll-bar:vertical,
+.tree-table-view .virtual-flow .scroll-bar:vertical .track,
+.tree-table-view .virtual-flow .scroll-bar:vertical .track-background,
+.tree-table-view .virtual-flow .scroll-bar:horizontal,
+.tree-table-view .virtual-flow .scroll-bar:horizontal .track,
+.tree-table-view .virtual-flow .scroll-bar:horizontal .track-background {
+    -fx-background-color: transparent;
+}
