@@ -56,7 +56,7 @@ public class MainController implements Initializable {
 
     public static Properties properties = new Properties();
 
-    public void onSelectReferenceItem(ActionEvent event) throws IOException {
+    public void onSelectReferenceItem(ActionEvent event) {
         // Open the file select dialog
         File selectedFile = openFileDialog("Jar Files...", "*.jar");
         // If result is null, ignore the rest
@@ -73,7 +73,7 @@ public class MainController implements Initializable {
         Config.save(Config.jarProperties, 1);
     }
 
-    public void onSelectProjectItem(ActionEvent event) throws IOException {
+    public void onSelectProjectItem(ActionEvent event) {
         // Open the file select dialog
         File selectedFile = openFileDialog("Mcmeta Files...", "*.mcmeta");
         // If result is null, ignore the rest
@@ -86,6 +86,17 @@ public class MainController implements Initializable {
         loadProject(rootPath);
         // Save the root path to jar config
         Config.jarProperties.setProperty("projectPath", rootPath.toString()+"/");
+        Config.save(Config.jarProperties, 1);
+    }
+
+    public void onSelectImageEditorItem(ActionEvent event) {
+        // Open the file select dialog
+        File selectedFile = openFileDialog("Select Executable...", null);
+        // If result is null, ignore the rest
+        if (selectedFile == null) {return;}
+
+        // Save the path to jar config
+        Config.jarProperties.setProperty("imageEditorPath", selectedFile.getPath());
         Config.save(Config.jarProperties, 1);
     }
 
@@ -129,7 +140,9 @@ public class MainController implements Initializable {
             fileChooser.setInitialDirectory(defaultPath.toFile());
         }
         // Set the filter
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter(text, types));
+        if (types != null) {
+            fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter(text, types));
+        }
         // Open the file select dialog
         return fileChooser.showOpenDialog(null);
     }
@@ -268,7 +281,7 @@ public class MainController implements Initializable {
 
         String currentLocation = this.getClass().getProtectionDomain().getCodeSource().getLocation().toString();
         currentLocation = currentLocation.substring(0, currentLocation.length() - 1).replaceFirst("file:", "");
-        Config.loadCustomProperties(Config.jarProperties, Path.of(currentLocation), new String[] {"referencePath","projectPath"});
+        Config.loadCustomProperties(Config.jarProperties, Path.of(currentLocation), new String[] {"referencePath","projectPath","imageEditorPath"});
         String referencePath = Config.jarProperties.getProperty("referencePath");
         String projectPath = Config.jarProperties.getProperty("projectPath");
         if (referencePath != null && !referencePath.equals("null") && Files.exists(Path.of(referencePath))) {
@@ -277,39 +290,27 @@ public class MainController implements Initializable {
         if (projectPath != null && !projectPath.equals("null") && Files.exists(Path.of(projectPath))) {
             loadProject(Path.of(projectPath));
         }
-
     }
 
     public void onCellClicked(TreeTableCell<Asset, String> cell, MouseEvent event) {
         if (cell == null || cell.getTreeTableRow().getTreeItem() == null) {return;}
         String path = cell.getTreeTableRow().getTreeItem().getValue().getPath();
-        // Import if double-clicked
-        if (event.getClickCount() == 2) {
-            importToProject(path);
-        }
-        /*
-        // Open if its double-clicked
-        if (event.getClickCount() == 2) {
-            String cmd = filePath + rootPath + "/" + path;
-            System.out.println(cmd);
+        String file = cell.getTreeTableRow().getTreeItem().getValue().getFile();
+        // Open if its double-clicked and this is a png
+        if (event.getClickCount() == 2 && file != null && file.endsWith(".png")) {
+            if (jarFile != null) {
+                importToProject(path);
+            }
+            String filePath = rootPath + "/" + path;
+            String executeFilePath = Config.jarProperties.getProperty("imageEditorPath");
+            if (executeFilePath == null || executeFilePath == "null") {return;}
             try {
-                System.out.println("Opening notepad");
                 Runtime runTime = Runtime.getRuntime();
-                //Process process = runTime.exec(new String[] {"/bin/bash"});
-                Process process = runTime.exec(new String[] {"/bin/bash", "-c", "'java --version'"});
-                BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(process.getInputStream()));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    System.out.println(line);
-                }
-                process.waitFor();
-                process.destroy();
-            } catch (IOException | InterruptedException e) {
+                runTime.exec(new String[] {"nohup", executeFilePath, filePath});
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        */
         if (cell.getText() != null && cell.getText().endsWith(".png")) {
             setThumbnail(path);
         }
@@ -324,7 +325,7 @@ public class MainController implements Initializable {
 
         ArrayList<String> result = new ArrayList<>();
         try (Stream<Path> walk = Files.walk(path)) {
-            walk.toList().forEach(e -> {result.add(e.toString());});
+            walk.toList().forEach(e -> result.add(e.toString()));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -333,7 +334,7 @@ public class MainController implements Initializable {
     }
 
 
-    public static void importToProject(String path) {
+    public void importToProject(String path) {
         try {
             String targetPath = rootPath+"/"+path;
             File targetFile = new File(targetPath);
@@ -344,6 +345,7 @@ public class MainController implements Initializable {
                 Files.copy(bufferedIS, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 bufferedIS.close();
                 generateTreeTableViewContent(path, path, rootTreeItem);
+                reloadProject();
             }
         } catch (IOException e) {
             e.printStackTrace();

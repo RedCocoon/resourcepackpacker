@@ -27,6 +27,7 @@
                               <MenuItem mnemonicParsing="false" onAction="#onSelectProjectItem" text="Load" />
                               <MenuItem mnemonicParsing="false" text="Export" />
                   <MenuItem fx:id="menuBarSelectRefrenceItem" mnemonicParsing="false" onAction="#onSelectReferenceItem" text="Select Reference Jar" />
+                  <MenuItem fx:id="menuBarSelectImageEditor" mnemonicParsing="false" onAction="#onSelectImageEditorItem" text="Select Image Editor Executable" />
                           <MenuItem mnemonicParsing="false" text="Close" />
                         </items>
                       </Menu>
