@@ -208,7 +208,7 @@ public class MainController implements Initializable {
         if (paths == null) {return;}
         for (String s : paths) {
             // Remove the front part so only /assets/ is left
-            String path = s.toString().replaceFirst(rootPath.toString() + "/", "");
+            String path = s.replaceFirst(rootPath.toString() + "/", "");
             if (path.startsWith("assets/") && path.endsWith(".png")) {
                 generateTreeTableViewContent(path, path, rootTreeItem);
             }
@@ -294,16 +294,23 @@ public class MainController implements Initializable {
 
     public void onCellClicked(TreeTableCell<Asset, String> cell, MouseEvent event) {
         if (cell == null || cell.getTreeTableRow().getTreeItem() == null) {return;}
-        String path = cell.getTreeTableRow().getTreeItem().getValue().getPath();
-        String file = cell.getTreeTableRow().getTreeItem().getValue().getFile();
-        // Open if its double-clicked and this is a png
-        if (event.getClickCount() == 2 && file != null && file.endsWith(".png")) {
+        TreeItem<Asset> currentTreeItem = cell.getTreeTableRow().getTreeItem();
+        String path = currentTreeItem.getValue().getPath();
+        String file = currentTreeItem.getValue().getFile();
+        // If the file is a directory (i.e. not a png file), expand/retract it and stop0
+        if ( file == null ) {return;}
+        if (!file.endsWith(".png")) {
+            currentTreeItem.setExpanded(!currentTreeItem.isExpanded());
+            return;
+        }
+        // Open if its double-clicked
+        if (event.getClickCount() == 2) {
             if (jarFile != null) {
                 importToProject(path);
             }
             String filePath = rootPath + "/" + path;
             String executeFilePath = Config.jarProperties.getProperty("imageEditorPath");
-            if (executeFilePath == null || executeFilePath == "null") {return;}
+            if (executeFilePath == null || executeFilePath.equals("null")) {return;}
             try {
                 Runtime runTime = Runtime.getRuntime();
                 runTime.exec(new String[] {"nohup", executeFilePath, filePath});
@@ -311,9 +318,7 @@ public class MainController implements Initializable {
                 e.printStackTrace();
             }
         }
-        if (cell.getText() != null && cell.getText().endsWith(".png")) {
-            setThumbnail(path);
-        }
+        setThumbnail(path);
     }
 
     // list all files from this path, return as string. To get real path, rootPath + path
@@ -338,13 +343,15 @@ public class MainController implements Initializable {
         try {
             String targetPath = rootPath+"/"+path;
             File targetFile = new File(targetPath);
+            targetFile.getParentFile().mkdirs();
             if (!targetFile.exists()) {
+                System.out.println(targetFile.getPath());
                 JarEntry file = jarFile.getJarEntry(path);
+
                 BufferedInputStream bufferedIS = new BufferedInputStream(jarFile.getInputStream(file));
 
-                Files.copy(bufferedIS, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(bufferedIS, targetFile.toPath());
                 bufferedIS.close();
-                generateTreeTableViewContent(path, path, rootTreeItem);
                 reloadProject();
             }
         } catch (IOException e) {
