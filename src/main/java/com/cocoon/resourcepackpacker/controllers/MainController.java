@@ -4,6 +4,10 @@ import com.cocoon.resourcepackpacker.Asset;
 import com.cocoon.resourcepackpacker.Cells.ResourcePathCell;
 import com.cocoon.resourcepackpacker.Cells.StatusCell;
 import com.cocoon.resourcepackpacker.config.Config;
+import javafx.beans.Observable;
+import javafx.beans.property.ReadOnlyBooleanWrapper;
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -153,14 +157,18 @@ public class MainController implements Initializable {
 
     public void createTreeTableView() {
         clearTreeTableView();
-        resourceFileTree.setCellFactory(e -> {
+        resourceFileTree.setCellFactory(p -> {
             TreeTableCell<Asset, String> cell = new ResourcePathCell();
             cell.setOnMouseClicked(event -> onCellClicked(cell, event));
             return cell ;
         });
         resourceFileTree.setCellValueFactory(new TreeItemPropertyValueFactory<>("file"));
-        statusTree.setCellFactory(e -> new StatusCell());
         statusTree.setCellValueFactory(new TreeItemPropertyValueFactory<>("status"));
+//        statusTree.setCellValueFactory(value -> {
+//            System.out.println("hi");
+//            return value.getTreeTableColumn().getCellObservableValue(3);
+//        });
+        statusTree.setCellFactory(p -> new StatusCell());
         setTreeTableViewRoot(rootTreeItem);
         setTreeTableViewColumns();
     }
@@ -297,23 +305,29 @@ public class MainController implements Initializable {
         TreeItem<Asset> currentTreeItem = cell.getTreeTableRow().getTreeItem();
         String path = currentTreeItem.getValue().getPath();
         String file = currentTreeItem.getValue().getFile();
-        // If the file is a directory (i.e. not a png file), expand/retract it and stop0
+        // If the file is a directory (i.e. not a png file), expand/retract it and stop
         if ( file == null ) {return;}
         if (!file.endsWith(".png")) {
-            currentTreeItem.setExpanded(!currentTreeItem.isExpanded());
+            //if (event.getTarget().getClass().getTypeName().equals("com.sun.javafx.scene.control.LabeledText")) {
+                currentTreeItem.setExpanded(!currentTreeItem.isExpanded());
+            //}
             return;
         }
         // Open if its double-clicked
         if (event.getClickCount() == 2) {
             if (jarFile != null) {
-                importToProject(path);
+                importToProject(cell, path);
             }
             String filePath = rootPath + "/" + path;
             String executeFilePath = Config.jarProperties.getProperty("imageEditorPath");
             if (executeFilePath == null || executeFilePath.equals("null")) {return;}
             try {
                 Runtime runTime = Runtime.getRuntime();
+                // LINUX/MAC? Linux works for sure
                 runTime.exec(new String[] {"nohup", executeFilePath, filePath});
+                // WINDOWS (Didn't test this tbh, please let me know if it doesn't work)
+                // runTime.exec(new String[] {"start /b", executeFilePath, filePath});
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -323,7 +337,6 @@ public class MainController implements Initializable {
 
     // list all files from this path, return as string. To get real path, rootPath + path
     public static ArrayList<String> listFiles(Path path) {
-
         if (path == null) {
             return null;
         }
@@ -339,13 +352,12 @@ public class MainController implements Initializable {
     }
 
 
-    public void importToProject(String path) {
+    public void importToProject(TreeTableCell<Asset, String> cell, String path) {
         try {
             String targetPath = rootPath+"/"+path;
             File targetFile = new File(targetPath);
             targetFile.getParentFile().mkdirs();
             if (!targetFile.exists()) {
-                System.out.println(targetFile.getPath());
                 JarEntry file = jarFile.getJarEntry(path);
 
                 BufferedInputStream bufferedIS = new BufferedInputStream(jarFile.getInputStream(file));
@@ -353,6 +365,7 @@ public class MainController implements Initializable {
                 Files.copy(bufferedIS, targetFile.toPath());
                 bufferedIS.close();
                 reloadProject();
+                // TODO: Update status display
             }
         } catch (IOException e) {
             e.printStackTrace();

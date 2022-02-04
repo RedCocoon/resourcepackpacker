@@ -62,8 +62,8 @@ public class Cells {
                     treeItemValue.setStatus(isCheckBoxSelected);
                     setCellDisplay(isCheckBoxSelected, checkBox);
                 });
-                boolean isPathCompleted = Config.isInArrayProperty(Config.projectProperties, "completed", treeItemValue.getPath());
-                if (item == null) {
+                Boolean isPathCompleted = Config.isInArrayProperty(Config.projectProperties, "completed", treeItemValue.getPath());
+                if (item == null || isPathCompleted == null) {
                     setCellDisplay(null, checkBox);
                 } else {
                     setCellDisplay((isPathCompleted || item), checkBox);

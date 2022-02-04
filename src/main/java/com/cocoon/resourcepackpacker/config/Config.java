@@ -26,6 +26,7 @@ public class Config {
             } else {
                 projectConfigFilePath = configFilePath;
             }
+            System.out.println(configFilePath);
             // Load the config or generate if not available
             File configFile = new File(configFilePath);
             if (configFile.createNewFile()) {
@@ -42,7 +43,11 @@ public class Config {
         }
     }
 
-    public static boolean isInArrayProperty(Properties properties, String property, String value) {
+    public static Boolean isInArrayProperty(Properties properties, String property, String value) {
+        String propertyList = properties.getProperty(property);
+        if (propertyList == null) {
+            return null;
+        }
         return properties.getProperty(property).contains(value);
     }
 
@@ -84,7 +89,6 @@ public class Config {
     }
 
     public static void save(Properties properties) {
-
         save(properties, 0);
     }
 }
