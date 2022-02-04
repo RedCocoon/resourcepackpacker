@@ -26,9 +26,9 @@ public class Config {
             } else {
                 projectConfigFilePath = configFilePath;
             }
-            System.out.println(configFilePath);
             // Load the config or generate if not available
             File configFile = new File(configFilePath);
+            configFile.getParentFile().mkdirs();
             if (configFile.createNewFile()) {
                 for (String p: defaultProperties) {
                     properties.setProperty(p, "null");
