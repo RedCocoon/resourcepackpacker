@@ -323,10 +323,15 @@ public class MainController implements Initializable {
             if (executeFilePath == null || executeFilePath.equals("null")) {return;}
             try {
                 Runtime runTime = Runtime.getRuntime();
-                // LINUX/MAC? Linux works for sure
-                runTime.exec(new String[] {"nohup", executeFilePath, filePath});
-                // WINDOWS (Didn't test this tbh, please let me know if it doesn't work)
-                // runTime.exec(new String[] {"start /b", executeFilePath, filePath});
+                String osName = System.getProperty("os.name").toLowerCase();
+                if (osName.contains("win")) {
+                    // WINDOWS (Didn't test this tbh, please let me know if it doesn't work)
+                    runTime.exec(new String[] {"start /b", executeFilePath, filePath});
+                } else {
+                    // LINUX/MAC? Linux works for sure
+                    runTime.exec(new String[]{"nohup", executeFilePath, filePath});
+                }
+
 
             } catch (IOException e) {
                 e.printStackTrace();
