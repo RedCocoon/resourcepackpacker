@@ -8,12 +8,12 @@ In this software, you can:
 Most of the buttons don't work right now, please wait for the next update when this software will be "feature complete".
 
 # To Run:
-1) Make sure you have Java 17 installed correctly. You can find the installation [here](https://adoptium.net/?variant=openjdk17&jvmVariant=hotspot
-).
-2) Make sure the JAVA_HOME environment variable is set correctly.
-3) You can check if 1 and 2 is correct by running `java -version` in a command prompt.
-4) You can find the download to the jar [here](https://github.com/RedCocoon/resourcepackpacker/releases)
-5) Simply double click the jar file to open it. Or use `java -jar "path/to/jar.jar"` to run.
+1) Make sure you have Java 17 installed correctly. You can find the installation [here](https://www.azul.com/downloads/?package=jdk-fx#download-openjdk).
+2) OpenJFX should be included in the installation linked in (1). If you install Java 17 using other methods, make sure you have OpenJFX installed too.
+3) Make sure the JAVA_HOME environment variable is set correctly.
+4) You can check if (3) is correct by running `java -version` in a command prompt.
+5) You can find the download to the jar [here](https://github.com/RedCocoon/resourcepackpacker/releases)
+6) Simply double click the jar file to open it. Or use `java -jar "path/to/jar.jar"` to run.
 
 # To Use:
 1) Under File at top left, select the resource pack's mcmeta by clicking "Load"
