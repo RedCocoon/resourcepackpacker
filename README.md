@@ -12,7 +12,8 @@ Most of the buttons don't work right now, please wait for the next update when t
 ).
 2) Make sure the JAVA_HOME environment variable is set correctly.
 3) You can check if 1 and 2 is correct by running `java -version` in a command prompt.
-4) Simply double click the jar file to open it. Or use `java -jar "path/to/jar.jar"` to run.
+4) You can find the download to the jar [here](https://github.com/RedCocoon/resourcepackpacker/releases)
+5) Simply double click the jar file to open it. Or use `java -jar "path/to/jar.jar"` to run.
 
 # To Use:
 1) Under File at top left, select the resource pack's mcmeta by clicking "Load"
