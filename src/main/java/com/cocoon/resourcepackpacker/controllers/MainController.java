@@ -21,6 +21,8 @@ import javafx.stage.FileChooser;
 
 import java.io.*;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -287,8 +289,10 @@ public class MainController implements Initializable {
         createTreeTableView();
         // Load files based on config
 
-        String currentLocation = this.getClass().getProtectionDomain().getCodeSource().getLocation().toString();
-        currentLocation = currentLocation.substring(0, currentLocation.length() - 1).replaceFirst("file:", "");
+        String currentLocation = new File("").getAbsolutePath();
+        currentLocation = URLDecoder.decode(currentLocation, StandardCharsets.UTF_8);
+
+        System.out.println(currentLocation);
         Config.loadCustomProperties(Config.jarProperties, Path.of(currentLocation), new String[] {"referencePath","projectPath","imageEditorPath"});
         String referencePath = Config.jarProperties.getProperty("referencePath");
         String projectPath = Config.jarProperties.getProperty("projectPath");

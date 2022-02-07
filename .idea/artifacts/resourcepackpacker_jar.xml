@@ -1,7 +1,7 @@
 <component name="ArtifactManager">
   <artifact type="jar" name="resourcepackpacker:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/resourcepackpacker_jar</output-path>
-    <root id="archive" name="resourcepackpacker.jar">
+    <root id="archive" name="resourcepackpacker_jar.jar">
       <element id="module-output" name="resourcepackpacker" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-fxml/16/javafx-fxml-16.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-controls/16/javafx-controls-16.jar" path-in-jar="/" />
