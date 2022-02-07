@@ -48,7 +48,7 @@
                   </MenuBar>
                </top>
    <bottom>
-            <Label fx:id="versioningLabel" text="Version pre-alpha-1.1" BorderPane.alignment="CENTER" />
+            <Label fx:id="versioningLabel" text="Version pre-alpha-1.2" BorderPane.alignment="CENTER" />
    </bottom>
    <center>
       <AnchorPane BorderPane.alignment="CENTER">

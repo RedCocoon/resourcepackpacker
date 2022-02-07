@@ -6,7 +6,7 @@
 
     <groupId>com.cocoon</groupId>
     <artifactId>resourcepackpacker</artifactId>
-    <version>1-1-ALPHA</version>
+    <version>1-2-ALPHA</version>
     <name>resourcepackpacker</name>
 
     <properties>
