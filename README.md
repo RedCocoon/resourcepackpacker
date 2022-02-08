@@ -1,5 +1,6 @@
 # Resource Pack Packer
-Modern solution to resource pack development
+Modern solution for resource pack development
+
 In this software, you can:
     Compare a resource pack with a reference jar
     Import textures from the reference jar with ease
