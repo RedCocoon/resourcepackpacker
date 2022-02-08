@@ -1,5 +1,6 @@
 package com.cocoon.resourcepackpacker.controllers;
 
+import com.cocoon.resourcepackpacker.App;
 import com.cocoon.resourcepackpacker.Asset;
 import com.cocoon.resourcepackpacker.Cells.ResourcePathCell;
 import com.cocoon.resourcepackpacker.Cells.StatusCell;
@@ -20,15 +21,19 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 
@@ -41,9 +46,11 @@ public class MainController implements Initializable {
 
     @FXML
     private ImageView imagePreviewer;
+
     @FXML
     private Label imagePreviewerLabel;
 
+    @FXML
     private Label versioningLabel;
 
     @FXML
@@ -58,9 +65,41 @@ public class MainController implements Initializable {
 
     private static JarFile jarFile;
 
-    private static Path rootPath = null;
+    private static String rootPath = null;
+
+    private static Manifest manifest;
 
     public static Properties properties = new Properties();
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        createTreeTableView();
+        // Load files based on config
+
+        String currentLocation = null;
+        try {
+            URI uri = this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
+            currentLocation = normalizePath(Paths.get(uri).getParent().toString());
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        //currentLocation = URLDecoder.decode(currentLocation, StandardCharsets.UTF_8);
+
+        System.out.println(currentLocation);
+        assert currentLocation != null;
+        Config.loadCustomProperties(Config.jarProperties, Path.of(currentLocation), new String[] {"referencePath","projectPath","imageEditorPath"});
+        String referencePath = Config.jarProperties.getProperty("referencePath");
+        String projectPath = Config.jarProperties.getProperty("projectPath");
+
+        if (projectPath != null && !projectPath.equals("null") && Files.exists(Path.of(projectPath))) {
+            System.out.println(projectPath);
+            loadProject(Path.of(projectPath));
+        }
+        if (referencePath != null && !referencePath.equals("null") && Files.exists(Path.of(referencePath))) {
+            System.out.println(referencePath);
+            loadReference(referencePath);
+        }
+    }
 
     public void onSelectReferenceItem(ActionEvent event) {
         // Open the file select dialog
@@ -71,7 +110,7 @@ public class MainController implements Initializable {
         createTreeTableView();
 
         // Get the path of the file
-        String filepath = selectedFile.getAbsolutePath();
+        String filepath = normalizePath(selectedFile.getAbsolutePath());
         loadReference(filepath);
 
         // Save the root path to jar config
@@ -87,11 +126,11 @@ public class MainController implements Initializable {
 
         createTreeTableView();
         // Scan for every .png file in the path, and set the status of corresponding files in the treeview
-        rootPath = selectedFile.getParentFile().toPath();
+        rootPath = normalizePath(selectedFile.getParentFile().toPath().toString());
 
-        loadProject(rootPath);
+        loadProject(Paths.get(rootPath));
         // Save the root path to jar config
-        Config.jarProperties.setProperty("projectPath", rootPath.toString()+"/");
+        Config.jarProperties.setProperty("projectPath", rootPath+"/");
         Config.save(Config.jarProperties, 1);
     }
 
@@ -102,11 +141,11 @@ public class MainController implements Initializable {
         if (selectedFile == null) {return;}
 
         // Save the path to jar config
-        Config.jarProperties.setProperty("imageEditorPath", selectedFile.getPath());
+        Config.jarProperties.setProperty("imageEditorPath", normalizePath(selectedFile.getPath()));
         Config.save(Config.jarProperties, 1);
     }
 
-    public void loadReference(String filepath) {
+    private void loadReference(String filepath) {
         // Magic from https://www.devx.com/tips/java/reading-contents-of-a-jar-file-using-java.-170629013043.html
         try{
             // Load the jar file using the filepath above
@@ -128,8 +167,8 @@ public class MainController implements Initializable {
         }
     }
 
-    public void loadProject(Path path) {
-        rootPath = path;
+    private void loadProject(Path path) {
+        rootPath = normalizePath(path.toString());
         //Create/Load the config
         Config.loadCustomProperties(Config.projectProperties, path, new String[] {"completed"});
 
@@ -139,7 +178,7 @@ public class MainController implements Initializable {
         treeTableView.setDisable(false);
     }
 
-    public File openFileDialog(String text, String types, Path defaultPath) {
+    private File openFileDialog(String text, String types, Path defaultPath) {
         // Create a new filechooser
         FileChooser fileChooser = new FileChooser();
         if (defaultPath != null) {
@@ -153,11 +192,11 @@ public class MainController implements Initializable {
         return fileChooser.showOpenDialog(null);
     }
 
-    public File openFileDialog(String text, String types) {
+    private File openFileDialog(String text, String types) {
         return openFileDialog(text, types, null);
     }
 
-    public void createTreeTableView() {
+    private void createTreeTableView() {
         clearTreeTableView();
         resourceFileTree.setCellFactory(p -> {
             TreeTableCell<Asset, String> cell = new ResourcePathCell();
@@ -176,7 +215,7 @@ public class MainController implements Initializable {
     }
 
     // Generate the main tree
-    public static void generateTreeTableViewContent(String originalPath, String path, TreeItem<Asset> currentLevel) {
+    private static void generateTreeTableViewContent(String originalPath, String path, TreeItem<Asset> currentLevel) {
         // If the file exists in project, set status to false (imported)
         File projectFile = new File(rootPath + "/" + originalPath);
         if (projectFile.exists()) {
@@ -213,7 +252,7 @@ public class MainController implements Initializable {
     }
 
     // Update Tree Table View by reloading resource pack
-    public void reloadProject() {
+    private void reloadProject() {
         ArrayList<String> paths = listFiles(rootPath);
         if (paths == null) {return;}
         for (String s : paths) {
@@ -226,7 +265,7 @@ public class MainController implements Initializable {
         sortTree(resourceFileTree, TreeTableColumn.SortType.ASCENDING);
     }
 
-    public static String truncatePathString(String[] pathSegments, String currentLevelString) {
+    private static String truncatePathString(String[] pathSegments, String currentLevelString) {
         // Reconstruct the string without the first element
         StringBuilder new_path = new StringBuilder();
         for (String s : pathSegments) {
@@ -241,27 +280,27 @@ public class MainController implements Initializable {
         return new_path.toString();
     }
 
-    public void setTreeTableViewRoot(TreeItem<Asset> root) {
+    private void setTreeTableViewRoot(TreeItem<Asset> root) {
         treeTableView.setRoot(root);
     }
 
-    public void clearTreeTableView() {
+    private void clearTreeTableView() {
         treeTableView.getColumns().remove(resourceFileTree);
         treeTableView.getColumns().remove(statusTree);
     }
 
-    public void setTreeTableViewColumns() {
+    private void setTreeTableViewColumns() {
         treeTableView.getColumns().add(resourceFileTree);
         treeTableView.getColumns().add(statusTree);
         sortTree(resourceFileTree, TreeTableColumn.SortType.ASCENDING);
     }
 
-    public void sortTree(TreeTableColumn<Asset, ?> ttc, TreeTableColumn.SortType sortType) {
+    private void sortTree(TreeTableColumn<Asset, ?> ttc, TreeTableColumn.SortType sortType) {
         ttc.setSortType(sortType);
         treeTableView.getSortOrder().add(ttc);
     }
 
-    public void setThumbnail(String path) {
+    private void setThumbnail(String path) {
         // Try to get the file using rootPath + path first
         // If it does not exist, get the texture inside the Jar
         String labelText = path;
@@ -284,27 +323,7 @@ public class MainController implements Initializable {
         } catch (IOException ignored) {}
     }
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        createTreeTableView();
-        // Load files based on config
-
-        String currentLocation = new File("").getAbsolutePath();
-        currentLocation = URLDecoder.decode(currentLocation, StandardCharsets.UTF_8);
-
-        System.out.println(currentLocation);
-        Config.loadCustomProperties(Config.jarProperties, Path.of(currentLocation), new String[] {"referencePath","projectPath","imageEditorPath"});
-        String referencePath = Config.jarProperties.getProperty("referencePath");
-        String projectPath = Config.jarProperties.getProperty("projectPath");
-        if (referencePath != null && !referencePath.equals("null") && Files.exists(Path.of(referencePath))) {
-            loadReference(referencePath);
-        }
-        if (projectPath != null && !projectPath.equals("null") && Files.exists(Path.of(projectPath))) {
-            loadProject(Path.of(projectPath));
-        }
-    }
-
-    public void onCellClicked(TreeTableCell<Asset, String> cell, MouseEvent event) {
+    private void onCellClicked(TreeTableCell<Asset, String> cell, MouseEvent event) {
         if (cell == null || cell.getTreeTableRow().getTreeItem() == null) {return;}
         TreeItem<Asset> currentTreeItem = cell.getTreeTableRow().getTreeItem();
         String path = currentTreeItem.getValue().getPath();
@@ -345,13 +364,13 @@ public class MainController implements Initializable {
     }
 
     // list all files from this path, return as string. To get real path, rootPath + path
-    public static ArrayList<String> listFiles(Path path) {
+    private static ArrayList<String> listFiles(String path) {
         if (path == null) {
             return null;
         }
 
         ArrayList<String> result = new ArrayList<>();
-        try (Stream<Path> walk = Files.walk(path)) {
+        try (Stream<Path> walk = Files.walk(Paths.get(path))) {
             walk.toList().forEach(e -> result.add(e.toString()));
         } catch (IOException e) {
             e.printStackTrace();
@@ -360,8 +379,7 @@ public class MainController implements Initializable {
 
     }
 
-
-    public void importToProject(TreeTableCell<Asset, String> cell, String path) {
+    private void importToProject(TreeTableCell<Asset, String> cell, String path) {
         try {
             String targetPath = rootPath+"/"+path;
             File targetFile = new File(targetPath);
@@ -381,4 +399,7 @@ public class MainController implements Initializable {
         }
     }
 
+    private String normalizePath(String path) {
+        return path.replace("\\", "/");
+    }
 }

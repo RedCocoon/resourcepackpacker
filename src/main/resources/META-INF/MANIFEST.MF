@@ -1,2 +1,3 @@
 Manifest-Version: 1.0
 Main-Class: com.cocoon.resourcepackpacker.App
+Implementation-Version: 1.3-ALPHA
